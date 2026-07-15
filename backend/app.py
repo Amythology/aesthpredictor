@@ -18,6 +18,20 @@ import gc
 import io
 import os
 
+# Must be set before numpy/pandas/arch are imported anywhere in the process —
+# these libraries read them at import time to size their BLAS thread pool.
+# On CPU-constrained containers (like Render's free tier, a fraction of a
+# core), OpenBLAS spawning its own multi-threaded pool can itself segfault
+# (gunicorn logs this as "Worker was sent code 139"). Pinning everything to
+# a single thread avoids that contention entirely; it costs a little
+# per-request speed but nothing this API does is large enough for that to
+# matter, and it's the difference between "runs reliably" and "randomly dies".
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("VECLIB_MAXIMUM_THREADS", "1")
+os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
+
 import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
