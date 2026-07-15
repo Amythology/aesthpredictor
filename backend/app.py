@@ -16,6 +16,7 @@ Designed to run comfortably on a 512MB container:
 
 import gc
 import io
+import os
 
 import pandas as pd
 from flask import Flask, jsonify, request
@@ -208,4 +209,8 @@ def regime():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5001)
+    # Local dev only; Render/production uses gunicorn (see Procfile).
+    # Reads $PORT so this still behaves sensibly if ever invoked directly
+    # in an environment like Render that injects PORT.
+    port = int(os.environ.get("PORT", 5001))
+    app.run(debug=False, host="0.0.0.0", port=port)
