@@ -38,7 +38,7 @@ export default function App() {
     formData.append('periods_per_year', periods);
 
     try {
-      const response = await fetch('http://127.0.0.1:5001/api/analyze', {
+      const response = await fetch('https://aesthpredictor.onrender.com/api/analyze', {
         method: 'POST',
         body: formData,
       });
